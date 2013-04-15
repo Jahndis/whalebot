@@ -6,6 +6,7 @@ import java.util.List;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.jahndis.whalebot.framework.Input.TouchEvent.TouchEventType;
 import com.jahndis.whalebot.framework.Pool;
 import com.jahndis.whalebot.framework.Input.TouchEvent;
 import com.jahndis.whalebot.framework.Pool.PoolObjectFactory;
@@ -53,15 +54,14 @@ public class MultiTouchHandler implements TouchHandler {
         }
         int pointerId = event.getPointerId(i);
         if (event.getAction() != MotionEvent.ACTION_MOVE && i != pointerIndex) {
-          // If it's an up/down/cancel/out event, mask the id to see 
-          // if we should process it for this touch point
+          // If it's an up/down/cancel/out event, mask the id to see if we should process it for this touch point
           continue;
         }
         switch (action) {
         case MotionEvent.ACTION_DOWN:
         case MotionEvent.ACTION_POINTER_DOWN:
           touchEvent = touchEventPool.newObject();
-          touchEvent.type = TouchEvent.TOUCH_DOWN;
+          touchEvent.type = TouchEventType.TOUCH_DOWN;
           touchEvent.pointer = pointerId;
           touchEvent.x = touchX[i] = (int) (event.getX(i) * scaleX);
           touchEvent.y = touchY[i] = (int) (event.getY(i) * scaleY);
@@ -73,7 +73,7 @@ public class MultiTouchHandler implements TouchHandler {
         case MotionEvent.ACTION_POINTER_UP:
         case MotionEvent.ACTION_CANCEL:
           touchEvent = touchEventPool.newObject();
-          touchEvent.type = TouchEvent.TOUCH_UP;
+          touchEvent.type = TouchEventType.TOUCH_UP;
           touchEvent.pointer = pointerId;
           touchEvent.x = touchX[i] = (int) (event.getX(i) * scaleX);
           touchEvent.y = touchY[i] = (int) (event.getY(i) * scaleY);
@@ -83,7 +83,7 @@ public class MultiTouchHandler implements TouchHandler {
           break;
         case MotionEvent.ACTION_MOVE:
           touchEvent = touchEventPool.newObject();
-          touchEvent.type = TouchEvent.TOUCH_DRAGGED;
+          touchEvent.type = TouchEventType.TOUCH_DRAGGED;
           touchEvent.pointer = pointerId;
           touchEvent.x = touchX[i] = (int) (event.getX(i) * scaleX);
           touchEvent.y = touchY[i] = (int) (event.getY(i) * scaleY);
@@ -148,7 +148,9 @@ public class MultiTouchHandler implements TouchHandler {
     }
   }
   
+  
   /* Private Methods */
+  
   private int getIndex(int pointerId) {
     for (int i = 0; i < MAX_TOUCHPOINTS; i++) {
       if (id[i] == pointerId) {

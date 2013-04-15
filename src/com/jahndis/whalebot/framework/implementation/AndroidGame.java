@@ -13,6 +13,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.view.Window;
@@ -26,51 +27,38 @@ public abstract class AndroidGame extends Activity implements Game {
   Input input;
   FileIO fileIO;
   Screen screen;
-//  WakeLock wakeLock;
   
-  @SuppressWarnings("deprecation")
-  @SuppressLint("NewApi")
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
+    // Set window to have no title bar and be full screen
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     
-    boolean isPortrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
-    int frameBufferWidth = isPortrait ? 800: 1280;
-    int frameBufferHeight = isPortrait ? 1200: 800;
-    Bitmap frameBuffer = Bitmap.createBitmap(frameBufferWidth, frameBufferHeight, Config.RGB_565);
+    // Determine dimensions and scaling of frame buffer
+    Point frameBufferDimensions = getFrameBufferDimensions();
+    PointF frameBufferScale = getFrameBufferScale(frameBufferDimensions);
     
-    float scaleX;
-    float scaleY;
-    if (VERSION.SDK_INT < 13) {
-      scaleX = (float) frameBufferWidth / getWindowManager().getDefaultDisplay().getWidth();
-      scaleY = (float) frameBufferWidth / getWindowManager().getDefaultDisplay().getHeight();
-    } else {
-      Point size = new Point();
-      getWindowManager().getDefaultDisplay().getSize(size);
-      scaleX = (float) frameBufferWidth / size.x;
-      scaleY = (float) frameBufferWidth / size.y;
-    }
+    // Create the frame buffer
+    Bitmap frameBuffer = Bitmap.createBitmap(frameBufferDimensions.x, frameBufferDimensions.y, Config.RGB_565);
     
+    // Create all of the components for the game
     renderView = new AndroidFastRenderView(this, frameBuffer);
     graphics = new AndroidGraphics(getAssets(), frameBuffer);
     fileIO = new AndroidFileIO(this);
     audio = new AndroidAudio(this);
-    input = new AndroidInput(this, renderView, scaleX, scaleY);
+    input = new AndroidInput(this, renderView, frameBufferScale.x, frameBufferScale.y);
     screen = getInitScreen();
     setContentView(renderView);
     
-//    PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-//    wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "MyGame");
+    // Keep the screen on while the application has focus
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
   }
   
   @Override
   public void onResume() {
     super.onResume();
-//    wakeLock.acquire();
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     screen.resume();
     renderView.resume();
@@ -79,7 +67,6 @@ public abstract class AndroidGame extends Activity implements Game {
   @Override
   public void onPause() {
     super.onPause();
-//    wakeLock.release();
     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     renderView.pause();
     screen.pause();
@@ -125,6 +112,38 @@ public abstract class AndroidGame extends Activity implements Game {
   @Override
   public Screen getCurrentScreen() {
     return screen;
+  }
+  
+  
+  /* Private Methods */
+  
+  private Point getFrameBufferDimensions() {
+    Point frameBufferDimensions = new Point();
+    
+    boolean isPortrait = getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+    
+    frameBufferDimensions.x = isPortrait ? 800: 1280;
+    frameBufferDimensions.y = isPortrait ? 1200: 800;
+
+    return frameBufferDimensions;
+  }
+  
+  @SuppressLint("NewApi")
+  @SuppressWarnings("deprecation")
+  private PointF getFrameBufferScale(Point frameBufferDimensions) {
+    PointF frameBufferScale = new PointF();
+    
+    if (VERSION.SDK_INT < 13) {
+      frameBufferScale.x = (float) frameBufferDimensions.x / getWindowManager().getDefaultDisplay().getWidth();
+      frameBufferScale.y = (float) frameBufferDimensions.y / getWindowManager().getDefaultDisplay().getHeight();
+    } else {
+      Point size = new Point();
+      getWindowManager().getDefaultDisplay().getSize(size);
+      frameBufferScale.x = (float) frameBufferDimensions.x / size.x;
+      frameBufferScale.y = (float) frameBufferDimensions.y / size.y;
+    }
+    
+    return frameBufferScale;
   }
 
 }

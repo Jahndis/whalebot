@@ -12,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
+import android.graphics.RectF;
 
 import com.jahndis.whalebot.framework.Graphics;
 import com.jahndis.whalebot.framework.Image;
@@ -33,47 +34,9 @@ public class AndroidGraphics implements Graphics {
   }
   
   @Override
-  public Image newImage(String fileName, ImageFormat format) {
-    Config config = null;
-    if (format == ImageFormat.RGB565) {
-      config = Config.RGB_565;
-    } else if (format == ImageFormat.ARGB4444){
-      config = Config.ARGB_4444;
-    } else {
-      config = Config.ARGB_8888;
-    }
-    
-    Options options = new Options();
-    options.inPreferredConfig = config;
-    
-    InputStream in = null;
-    Bitmap bitmap = null;
-    try {
-      in = assets.open(fileName);
-      bitmap = BitmapFactory.decodeStream(in, null, options);
-      if (bitmap == null) {
-        throw new RuntimeException("Couldn't load bitmap from asset '" + fileName + "'");
-      }
-    } catch (IOException e) {
-      throw new RuntimeException("Couldn't load bitmap from asset '" + fileName + "'");
-    } finally {
-      if (in != null) {
-        try {
-          in.close();
-        } catch (IOException e) {
-          
-        }
-      }
-    }
-    
-    if (bitmap.getConfig() == Config.RGB_565) {
-      format = ImageFormat.RGB565;
-    } else if (bitmap.getConfig() == Config.ARGB_4444){
-      format = ImageFormat.ARGB4444;
-    } else {
-      format = ImageFormat.ARGB8888;
-    }
-    
+  public Image newImage(String filename, ImageFormat format) {
+    Bitmap bitmap = createBitmap(filename, format);
+    format = getImageFormatFromBitmapConfig(bitmap.getConfig());
     return new AndroidImage(bitmap, format);
   }
   
@@ -93,6 +56,20 @@ public class AndroidGraphics implements Graphics {
     paint.setColor(color);
     paint.setStyle(Style.FILL);
     canvas.drawRect(x,  y, x + width - 1, y + height - 1, paint);
+  }
+  
+  @Override
+  public void drawCircle(int cx, int cy, int radius, int color) {
+    paint.setColor(color);
+    paint.setStyle(Style.FILL);
+    canvas.drawCircle(cx, cy, radius, paint);
+  }
+  
+  @Override
+  public void drawOval(int x, int y, int width, int height, int color) {
+    paint.setColor(color);
+    paint.setStyle(Style.FILL);
+    canvas.drawOval(new RectF(x, y, x + width, y + height), paint);
   }
   
   @Override
@@ -148,6 +125,85 @@ public class AndroidGraphics implements Graphics {
   @Override
   public int getHeight() {
     return frameBuffer.getHeight();
+  }
+  
+  
+  /* Private Methods */
+  
+  private Bitmap createBitmap(String fileName, ImageFormat format) {
+    Bitmap bitmap = null;
+    
+    Bitmap.Config config = getBitmapConfigFromImageFormat(format);
+    
+    Options options = new Options();
+    options.inPreferredConfig = config;
+    
+    InputStream in = null;
+    try {
+      in = assets.open(fileName);
+      bitmap = BitmapFactory.decodeStream(in, null, options);
+      if (bitmap == null) {
+        throw new RuntimeException("Couldn't load bitmap from asset '" + fileName + "'");
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Couldn't load bitmap from asset '" + fileName + "'");
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (IOException e) {
+          
+        }
+      }
+    }
+    
+    return bitmap;
+  }
+  
+  private Bitmap.Config getBitmapConfigFromImageFormat(ImageFormat format) {
+    Bitmap.Config config = null;
+    
+    switch (format) {
+    case RGB565:
+      config = Bitmap.Config.RGB_565;
+      break;
+    case ARGB4444:
+      config = Bitmap.Config.ARGB_4444;
+      break;
+    case ARGB8888:
+      config = Bitmap.Config.ARGB_8888;
+      break;
+    case ALPHA8:
+      config = Bitmap.Config.ALPHA_8;
+      break;
+    default:
+      throw new RuntimeException("Unsupported image format '" + format + "'");
+    }
+    
+    return config;
+  }
+  
+  private ImageFormat getImageFormatFromBitmapConfig(Config config) {
+    ImageFormat format = null;
+    
+    switch (config) {
+    case RGB_565:
+      format = ImageFormat.RGB565;
+      break;
+    case ARGB_4444:
+      format = ImageFormat.ARGB4444;
+      break;
+    case ARGB_8888:
+      format = ImageFormat.ARGB8888;
+      break;
+    case ALPHA_8:
+      format = ImageFormat.ALPHA8;
+      break;
+    default:
+      throw new RuntimeException("Unsupported image format '" + config + "'");
+    }
+    
+    return format;
   }
 
 }

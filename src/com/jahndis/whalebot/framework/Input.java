@@ -5,12 +5,12 @@ import java.util.List;
 public interface Input {
 
   public static class TouchEvent {
-    public static final int TOUCH_DOWN = 0;
-    public static final int TOUCH_UP = 1;
-    public static final int TOUCH_DRAGGED = 2;
-    public static final int TOUCH_HOLD = 3;
     
-    public int type;
+    public enum TouchEventType {
+      TOUCH_DOWN, TOUCH_UP, TOUCH_DRAGGED, TOUCH_HOLD
+    }
+    
+    public TouchEventType type;
     public int x, y;
     public int pointer;
   }

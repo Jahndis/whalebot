@@ -6,6 +6,7 @@ import java.util.List;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.jahndis.whalebot.framework.Input.TouchEvent.TouchEventType;
 import com.jahndis.whalebot.framework.Pool;
 import com.jahndis.whalebot.framework.Input.TouchEvent;
 import com.jahndis.whalebot.framework.Pool.PoolObjectFactory;
@@ -41,16 +42,16 @@ public class SingleTouchHandler implements TouchHandler {
       TouchEvent touchEvent = touchEventPool.newObject();
       switch (event.getAction()) {
       case MotionEvent.ACTION_DOWN:
-        touchEvent.type = TouchEvent.TOUCH_DOWN;
+        touchEvent.type = TouchEventType.TOUCH_DOWN;
         isTouched = true;
         break;
       case MotionEvent.ACTION_MOVE:
-        touchEvent.type = TouchEvent.TOUCH_DRAGGED;
+        touchEvent.type = TouchEventType.TOUCH_DRAGGED;
         isTouched = true;
         break;
       case MotionEvent.ACTION_CANCEL:
       case MotionEvent.ACTION_UP:
-        touchEvent.type = TouchEvent.TOUCH_UP;
+        touchEvent.type = TouchEventType.TOUCH_UP;
         isTouched = false;
         break;
       }
