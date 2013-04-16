@@ -77,6 +77,11 @@ public abstract class AndroidGame extends Activity implements Game {
   }
   
   @Override
+  public void onBackPressed() {
+    getCurrentScreen().backButton();
+  }
+  
+  @Override
   public Input getInput() {
     return input;
   }
