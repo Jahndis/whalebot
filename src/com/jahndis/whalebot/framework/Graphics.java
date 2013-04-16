@@ -2,6 +2,7 @@ package com.jahndis.whalebot.framework;
 
 import android.graphics.Paint;
 
+
 public interface Graphics {
   
   public static enum ImageFormat {

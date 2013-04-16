@@ -114,6 +114,11 @@ public abstract class AndroidGame extends Activity implements Game {
     return screen;
   }
   
+  @Override
+  public void exit() {
+    finish();
+  }
+  
   
   /* Private Methods */
   

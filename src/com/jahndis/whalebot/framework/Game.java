@@ -16,4 +16,6 @@ public interface Game {
 	
 	public Screen getInitScreen();
 	
+	public void exit();
+	
 }
