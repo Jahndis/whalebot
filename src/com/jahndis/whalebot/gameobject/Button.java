@@ -7,25 +7,12 @@ import com.jahndis.whalebot.gameobject.framework.Paintable;
 import com.jahndis.whalebot.gameobject.framework.Touchable;
 
 
-public abstract class Button implements Paintable, Touchable {
+public abstract class Button extends GameObject implements Paintable, Touchable {
   
-  protected final Game game;
-  public int x;
-  public int y;
-  public int width;
-  public int height;
   public boolean pressed = false;
   
-  public Button(Game game) {
-    this(game, 0, 0, 50, 50);
-  }
-  
   public Button(Game game, int x, int y, int width, int height) {
-    this.game = game;
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
+    super(game, x, y, width, height);
   }
   
   @Override

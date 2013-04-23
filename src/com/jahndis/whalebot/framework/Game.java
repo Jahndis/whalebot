@@ -1,5 +1,6 @@
 package com.jahndis.whalebot.framework;
 
+
 public interface Game {
 
 	public Audio getAudio();
