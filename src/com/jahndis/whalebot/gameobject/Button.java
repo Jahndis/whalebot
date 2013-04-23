@@ -6,7 +6,6 @@ import com.jahndis.whalebot.framework.Input.TouchEvent;
 import com.jahndis.whalebot.gameobject.framework.Paintable;
 import com.jahndis.whalebot.gameobject.framework.Touchable;
 
-
 public abstract class Button extends GameObject implements Paintable, Touchable {
   
   public boolean pressed = false;

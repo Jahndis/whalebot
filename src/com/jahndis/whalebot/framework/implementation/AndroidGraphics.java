@@ -17,7 +17,6 @@ import android.graphics.RectF;
 import com.jahndis.whalebot.framework.Graphics;
 import com.jahndis.whalebot.framework.Image;
 
-
 public class AndroidGraphics implements Graphics {
   
   AssetManager assets;
