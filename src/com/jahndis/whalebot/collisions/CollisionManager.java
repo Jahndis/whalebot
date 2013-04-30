@@ -1,43 +1,56 @@
-package com.jahndis.whalebot.utils;
+package com.jahndis.whalebot.collisions;
 
-import java.util.Collection;
+import java.util.ArrayList;
 
 import android.graphics.PointF;
 import android.graphics.Rect;
 
 import com.jahndis.whalebot.gameobject.framework.Collidable;
 
-public final class CollisionHandler {
+public abstract class CollisionManager<T extends Collidable, S extends Collidable> {
   
-  private CollisionHandler() {
+  private T object;
+  private ArrayList<S> others;
+  
+  public CollisionManager(T object, ArrayList<S> others) {
+    this.object = object;
+    this.others = others;
+  }
+  
+  public boolean check() {
+    for (S other : others) {
+      if (other != null) {
+        if (Rect.intersects(object.getCollisionMask(), other.getCollisionMask())) {
+          onCollision(object, other);
+          return true;
+        }
+      }
+    }
     
+    onNoCollision(object);
+    return false;
   }
   
-  public static void checkForCollisions(Collidable object, Collection<? extends Collidable> others) {
-    boolean hasCollisionWithAny = false;
-    Collidable other = null;
-    for (Collidable o : others) {
-      if (other == null) {
-        other = o;
-      }
-      if (object.hasCollision(o)) {
-        object.respondToCollision(o);
-        hasCollisionWithAny = true;
-      }
-    }
-    if (!hasCollisionWithAny) {
-      object.respondToNoCollision(other);
-    }
+  public abstract void onCollision(T object, S other);
+  
+  public abstract void onNoCollision(T object);
+  
+  public T getObject() {
+    return object;
   }
   
-  public static boolean hasCollision(Collidable object, Collidable other) {
-    return Rect.intersects(object.getCollisionMask(), other.getCollisionMask());
+  public ArrayList<S> getOthers() {
+    return others;
   }
   
-  public static PointF getCollisionResolutionVector(Collidable object, Collidable other, float direction) {
+  public static PointF getCollisionResolutionVector(Collidable object1, Collidable object2, float direction) {
     // Get overlap (intersection) of collision masks
     Rect intersect = new Rect();
-    intersect.setIntersect(object.getCollisionMask(), other.getCollisionMask());
+    intersect.setIntersect(object1.getCollisionMask(), object2.getCollisionMask());
+    if (intersect.isEmpty()) {
+      return new PointF(0, 0);
+    }
+    
     Rect overlap = new Rect(0, intersect.height(), intersect.width(), 0);
     
     // Get the direction of the vector to move out of collision

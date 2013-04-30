@@ -1,8 +1,8 @@
 package com.jahndis.whalebot.gameobject;
 
-import android.graphics.Point;
-
 import com.jahndis.whalebot.framework.Game;
+
+import android.graphics.Point;
 
 public abstract class GameObject {
   
